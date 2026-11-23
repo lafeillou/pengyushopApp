@@ -7,11 +7,14 @@ import '../utils/format.dart';
 import '../widgets/common.dart';
 import 'merchant_detail_page.dart';
 
-/// 合作商家（线下）展示区：
+/// 合作商家（线下）展示区（主导航“附近”页）：
 /// 展示商家门店（门头照片）、地址定位、离会员之间的距离，
 /// 商家展示按距离由近到远排列。
 class MerchantZonePage extends StatelessWidget {
-  const MerchantZonePage({super.key});
+  const MerchantZonePage({super.key, this.title = '合作商家展示区'});
+
+  /// 页面标题（作为“附近”Tab 页时传入“附近”）
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,7 @@ class MerchantZonePage extends StatelessWidget {
     final merchants = service.sortedByDistance();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('合作商家展示区')),
+      appBar: AppBar(title: Text(title)),
       body: Column(
         children: [
           Container(

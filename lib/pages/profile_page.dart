@@ -1,256 +1,333 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../main.dart';
-import '../models/member.dart';
-import '../models/membership_level.dart';
-import '../services/auth_service.dart';
-import '../services/merchant_service.dart';
-import '../services/payment_service.dart';
-import '../widgets/common.dart';
-import 'admin_page.dart';
-import 'login_page.dart';
-import 'merchant_apply_page.dart';
-import 'merchant_detail_page.dart';
-import 'orders_page.dart';
+import '../models/product.dart';
+import '../widgets/product_card.dart';
 
-/// 我的：会员信息、等级体系、商家中心、订单、退出登录
-class ProfilePage extends StatelessWidget {
+/// 个人中心页：严格复刻设计稿 16:275（已登录态）
+/// 渐变头部（头像/昵称/VIP）+ 我的订单卡 + 猜你喜欢/我的收藏 Tab + 商品推荐
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
-  /// 后台管理员账号
-  static const adminPhone = '13800000000';
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  /// 推荐商品（与设计稿商品卡一致，两组展示）
+  static final List<Product> _recommendProducts = [
+    const Product(
+      id: 'bee-1',
+      name: 'BeeBiny加拿大进口海外男士【一瓶三用】',
+      price: 368.0,
+      desc: '加拿大进口 · 一瓶三用',
+      emoji: '🧴',
+      colorValue: 0xFFB98D5F,
+      isGlobal: true,
+    ),
+    const Product(
+      id: 'ly-1',
+      name: '陇宇【飞天礼盒过年送礼】枸杞原浆滋补品',
+      price: 188.0,
+      desc: '飞天礼盒 · 枸杞原浆',
+      emoji: '🎁',
+      colorValue: 0xFFC24A3A,
+      merchantId: 'shop-longyu',
+    ),
+    const Product(
+      id: 'bee-2',
+      name: 'BeeBiny加拿大进口海外男士【一瓶三用】',
+      price: 368.0,
+      desc: '加拿大进口 · 一瓶三用',
+      emoji: '🧴',
+      colorValue: 0xFFB98D5F,
+      isGlobal: true,
+    ),
+    const Product(
+      id: 'ly-2',
+      name: '陇宇【飞天礼盒过年送礼】枸杞原浆滋补品',
+      price: 188.0,
+      desc: '飞天礼盒 · 枸杞原浆',
+      emoji: '🎁',
+      colorValue: 0xFFC24A3A,
+      merchantId: 'shop-longyu',
+    ),
+  ];
+
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
-    final member = context.watch<AuthService>().current!;
-    final merchant = context.watch<MerchantService>().byOwnerId(member.id);
-    final orderCount = context.watch<PaymentService>().ordersOf(member.id).length;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('我的')),
+      backgroundColor: const Color(0xFFF4F7F8),
       body: ListView(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.zero,
         children: [
-          // 会员信息
+          _buildGradientHeader(),
+          _buildOrderCard(),
+          _buildTabs(),
+          _buildProductGrid(),
+        ],
+      ),
+    );
+  }
+
+  /// 顶部渐变区（297 高）：头像 + 昵称 + VIP 徽章 + 铃铛 + 地址/设置
+  Widget _buildGradientHeader() {
+    return SizedBox(
+      height: 297,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 渐变背景：红 → 浅红 → 页面底色，顶部圆角 65
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFE53935), Color(0xFFB71C1C)],
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(65)),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0, 0.62, 1],
+                colors: [
+                  Color(0xFFFF5055),
+                  Color(0xD6FFAFB1),
+                  Color(0xFFF4F7F8),
+                ],
               ),
             ),
-            child: Row(
+          ),
+          SafeArea(
+            bottom: false,
+            child: Stack(
               children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Colors.white,
-                  child: Text(
-                    member.name.characters.first,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFE53935),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                // 头像 + 昵称 + VIP 徽章
+                Positioned(
+                  left: 24,
+                  top: 6,
+                  child: Row(
                     children: [
-                      Row(
+                      _buildAvatar(),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            child: Text(
-                              member.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          const Text(
+                            '亮太',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          LevelBadge(member.level),
+                          const SizedBox(height: 9),
+                          _buildVipBadge(),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        member.phone,
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '角色：${member.role.label}',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
+                    ],
+                  ),
+                ),
+                // 右上铃铛
+                const Positioned(
+                  right: 26,
+                  top: 12,
+                  child: Icon(Icons.notifications_none, size: 26, color: Color(0xFF333333)),
+                ),
+                // 右上“地址”“设置”
+                Positioned(
+                  right: 32,
+                  top: 45,
+                  child: Row(
+                    children: [
+                      _buildHeaderAction('地址'),
+                      const SizedBox(width: 20),
+                      _buildHeaderAction('设置'),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+        ],
+      ),
+    );
+  }
 
-          // 会员等级体系
-          SectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '会员等级体系',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '共六级：注册会员 → 普通会员 → 一星~四星会员',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 8),
-                ...MembershipLevel.values.map(
-                  (level) => Container(
-                    margin: const EdgeInsets.symmetric(vertical: 3),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: level == member.level
-                          ? const Color(0xFFFFF1F1)
-                          : const Color(0xFFFAFAFA),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: level == member.level
-                            ? kPrimaryColor
-                            : Colors.grey.shade200,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        LevelBadge(level, compact: true),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            level.rule,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
-                        if (level == member.level)
-                          const Icon(Icons.check_circle, size: 16, color: kPrimaryColor),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '级别升降由后台设置（一星~四星），普通会员由消费自动升格',
-                  style: TextStyle(fontSize: 10.5, color: Colors.grey.shade500),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
+  /// 头像：椭圆 76x74 #D9D9D9
+  Widget _buildAvatar() {
+    return ClipOval(
+      child: Container(
+        width: 76,
+        height: 74,
+        color: const Color(0xFFD9D9D9),
+        alignment: Alignment.center,
+        child: const Icon(Icons.person, size: 40, color: Color(0xFF9E9E9E)),
+      ),
+    );
+  }
 
-          // 商家中心
-          SectionCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                if (member.role == MemberRole.merchant && merchant != null)
-                  ListTile(
-                    leading: const Icon(Icons.storefront, color: Color(0xFF1E88E5)),
-                    title: const Text('我的门店', style: TextStyle(fontSize: 14)),
-                    subtitle: Text(
-                      merchant.name,
-                      style: const TextStyle(fontSize: 11.5, color: Colors.grey),
-                    ),
-                    trailing: const Icon(Icons.chevron_right, size: 18),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => MerchantDetailPage(merchant: merchant),
-                      ),
-                    ),
-                  )
-                else
-                  ListTile(
-                    leading: const Icon(Icons.storefront, color: Color(0xFF1E88E5)),
-                    title: const Text('申请成为合作商家', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text(
-                      '前提：先注册成为平台会员',
-                      style: TextStyle(fontSize: 11.5, color: Colors.grey),
-                    ),
-                    trailing: const Icon(Icons.chevron_right, size: 18),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const MerchantApplyPage()),
-                    ),
-                  ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.receipt_long, color: Color(0xFF43A047)),
-                  title: const Text('我的订单', style: TextStyle(fontSize: 14)),
-                  subtitle: Text(
-                    '共 $orderCount 笔',
-                    style: const TextStyle(fontSize: 11.5, color: Colors.grey),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, size: 18),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const OrdersPage()),
-                  ),
-                ),
-                if (member.phone == adminPhone) ...[
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.admin_panel_settings, color: Color(0xFFF57C00)),
-                    title: const Text('后台管理', style: TextStyle(fontSize: 14)),
-                    subtitle: const Text(
-                      '会员等级升降 / 红包规则 / 零钱拨付',
-                      style: TextStyle(fontSize: 11.5, color: Colors.grey),
-                    ),
-                    trailing: const Icon(Icons.chevron_right, size: 18),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AdminPage()),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
+  /// VIP 会员徽章：59x20 灰底黑字
+  Widget _buildVipBadge() {
+    return Container(
+      width: 59,
+      height: 20,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: const Color(0xFFD9D9D9),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Text(
+        'VIP会员',
+        style: TextStyle(fontSize: 12, color: Colors.black),
+      ),
+    );
+  }
 
-          // 退出登录
-          SizedBox(
-            height: 44,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: kPrimaryColor,
-                side: const BorderSide(color: kPrimaryColor),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+  Widget _buildHeaderAction(String label) {
+    return Text(
+      label,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.black,
+      ),
+    );
+  }
+
+  /// 我的订单卡：371 宽 118 高，白底边框 #E2E2E2 圆角 16
+  Widget _buildOrderCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      height: 118,
+      padding: const EdgeInsets.fromLTRB(13, 11, 13, 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E2E2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                '我的订单',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
-              onPressed: () {
-                context.read<AuthService>().logout();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,
-                );
-              },
-              child: const Text('退出登录'),
-            ),
+              const Spacer(),
+              const Text(
+                '全部 >',
+                style: TextStyle(fontSize: 14, color: Color(0xFF8C96A8)),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          const Center(
-            child: Text(
-              '鹏宇商城 · 演示版 v0.1.0\n数据存储于内存，重启后重置',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10.5, color: Colors.grey, height: 1.5),
+          const SizedBox(height: 10),
+          // 订单状态横幅（占位：正式项目替换为设计稿横幅图）
+          Container(
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFFFF0F0), Color(0xFFFFE9E0)],
+              ),
+            ),
+            child: const Row(
+              children: [
+                Text('📦', style: TextStyle(fontSize: 26)),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '待付款 0 · 待发货 0 · 待收货 0',
+                        style: TextStyle(fontSize: 13, color: Color(0xFF555555)),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        '查看全部订单',
+                        style: TextStyle(fontSize: 11, color: Color(0xFF999999)),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 16, color: Color(0xFF999999)),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 猜你喜欢 / 我的收藏 Tab + 红色指示条
+  Widget _buildTabs() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 12),
+      child: Row(
+        children: [
+          _buildTab('猜你喜欢', 0),
+          const SizedBox(width: 24),
+          _buildTab('我的收藏', 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab(String label, int index) {
+    final selected = _tab == index;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _tab = index),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: selected ? const Color(0xFFED2C25) : const Color(0xFF555555),
+            ),
+          ),
+          const SizedBox(height: 6),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 58,
+            height: 3,
+            decoration: BoxDecoration(
+              color: selected ? const Color(0xFFFF5055) : Colors.transparent,
+              borderRadius: BorderRadius.circular(1.5),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 商品推荐网格：2 列，卡 186.5 宽（与首页/设计稿商品卡一致）
+  Widget _buildProductGrid() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(9, 12, 9, 16),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 11,
+          mainAxisSpacing: 16,
+          childAspectRatio: 186.5 / 302,
+        ),
+        itemCount: _recommendProducts.length,
+        itemBuilder: (context, i) => ProductCard(
+          product: _recommendProducts[i],
+          reviewCount: _recommendProducts[i].isSpecial ? null : 60,
+        ),
       ),
     );
   }

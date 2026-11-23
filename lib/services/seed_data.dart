@@ -15,6 +15,7 @@ const specialZoneProducts = <Product>[
     desc: '2亿像素影像 · 5500mAh 长续航 · 120Hz 高刷屏',
     emoji: '📱',
     colorValue: 0xFF5C6BC0,
+    category: '数码',
   ),
   Product(
     id: 'sp2',
@@ -23,6 +24,7 @@ const specialZoneProducts = <Product>[
     desc: '主动降噪 · 30 小时超长续航',
     emoji: '🎧',
     colorValue: 0xFF26A69A,
+    category: '数码',
   ),
   Product(
     id: 'sp3',
@@ -31,6 +33,7 @@ const specialZoneProducts = <Product>[
     desc: '316 不锈钢 · 24 小时保温',
     emoji: '☕',
     colorValue: 0xFFFF7043,
+    category: '家居',
   ),
   Product(
     id: 'sp4',
@@ -39,6 +42,7 @@ const specialZoneProducts = <Product>[
     desc: '温和清洁 · 持久留香',
     emoji: '🧴',
     colorValue: 0xFFAB47BC,
+    category: '美妆',
   ),
   Product(
     id: 'sp5',
@@ -47,6 +51,7 @@ const specialZoneProducts = <Product>[
     desc: '100% 新疆长绒棉 · 亲肤透气',
     emoji: '🛏️',
     colorValue: 0xFF42A5F5,
+    category: '家居',
   ),
   Product(
     id: 'sp6',
@@ -55,6 +60,7 @@ const specialZoneProducts = <Product>[
     desc: '透气网面 · 回弹中底',
     emoji: '👟',
     colorValue: 0xFFEF5350,
+    category: '鞋类',
   ),
   Product(
     id: 'sp7',
@@ -71,6 +77,79 @@ const specialZoneProducts = <Product>[
     desc: '无线充电 · 一键榨汁',
     emoji: '🍹',
     colorValue: 0xFF8D6E63,
+    category: '数码',
+  ),
+  Product(
+    id: 'sp9',
+    name: '男士休闲纯棉T恤',
+    price: 59.9,
+    desc: '100% 新疆长绒棉 · 透气亲肤',
+    emoji: '👕',
+    colorValue: 0xFF7986CB,
+    category: '男装',
+  ),
+  Product(
+    id: 'sp10',
+    name: '直筒水洗牛仔裤',
+    price: 129,
+    desc: '弹力面料 · 四季百搭',
+    emoji: '👖',
+    colorValue: 0xFF5C6BC0,
+    category: '男装',
+  ),
+  Product(
+    id: 'sp11',
+    name: '《三体》全集典藏版',
+    price: 89,
+    desc: '雨果奖获奖作品 · 科幻巅峰之作',
+    emoji: '📚',
+    colorValue: 0xFF8D6E63,
+    category: '图书',
+  ),
+  Product(
+    id: 'sp12',
+    name: '高效能人士的七个习惯',
+    price: 45,
+    desc: '自我提升经典 · 畅销全球 30 年',
+    emoji: '📖',
+    colorValue: 0xFFFFA726,
+    category: '图书',
+  ),
+  Product(
+    id: 'sp13',
+    name: 'S925 纯银锁骨链',
+    price: 159,
+    desc: '925 银材质 · 简约百搭',
+    emoji: '📿',
+    colorValue: 0xFF26A69A,
+    category: '饰品',
+  ),
+  Product(
+    id: 'sp14',
+    name: '简约石英腕表',
+    price: 299,
+    desc: '进口机芯 · 30 米生活防水',
+    emoji: '⌚',
+    colorValue: 0xFF78909C,
+    category: '饰品',
+  ),
+  Product(
+    id: 'sp15',
+    name: '烟酰胺补水面膜 20 片',
+    price: 79,
+    desc: '烟酰胺精华 · 深层补水',
+    emoji: '💆',
+    colorValue: 0xFFEC407A,
+    category: '美妆',
+  ),
+  Product(
+    id: 'sp16',
+    name: '经典百搭小白鞋',
+    price: 219,
+    desc: '头层软皮 · 轻便透气',
+    emoji: '👟',
+    colorValue: 0xFF66BB6A,
+    category: '鞋类',
   ),
 ];
 
@@ -123,6 +202,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '🧺',
       colorValue: 0xFF42A5F5,
       merchantId: 'm2',
+      category: '家居',
     ),
     Product(
       id: 'mp2-3',
@@ -143,6 +223,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '🥤',
       colorValue: 0xFFEC407A,
       merchantId: 'm3',
+      category: '家居',
     ),
     Product(
       id: 'mp3-2',
@@ -152,6 +233,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '🗃️',
       colorValue: 0xFFAB47BC,
       merchantId: 'm3',
+      category: '家居',
     ),
     Product(
       id: 'mp3-3',
@@ -161,6 +243,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '📐',
       colorValue: 0xFF5C6BC0,
       merchantId: 'm3',
+      category: '数码',
     ),
   ],
   'm4': [
@@ -172,6 +255,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '🍒',
       colorValue: 0xFFEF5350,
       merchantId: 'm4',
+      isGlobal: true,
     ),
     Product(
       id: 'mp4-2',
@@ -181,6 +265,7 @@ const merchantProducts = <String, List<Product>>{
       emoji: '🍣',
       colorValue: 0xFF29B6F6,
       merchantId: 'm4',
+      isGlobal: true,
     ),
     Product(
       id: 'mp4-3',
